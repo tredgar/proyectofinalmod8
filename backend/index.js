@@ -67,7 +67,19 @@ app.post('/api/productos', (req, res) => {
 });
 
 
+// DELETE /api/productos/:id - Eliminar un producto
+app.delete('/api/productos/:id', (req, res) => {
+  const { id } = req.params;
+  const index = productos.findIndex((p) => p.id === parseInt(id));
 
+  if (index === -1) {
+    return res.status(404).json({ mensaje: 'Producto no encontrado' });
+  }
+
+  // Eliminar elemento del arreglo
+  productos.splice(index, 1);
+  res.json({ mensaje: 'Producto eliminado exitosamente' });
+});
 
 // Iniciar el servidor
 app.listen(PORT, () => {
