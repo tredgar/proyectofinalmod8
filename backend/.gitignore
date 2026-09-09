@@ -1,0 +1,9 @@
+# Ignorar dependencias de Node de ambas subcarpetas
+**/node_modules/
+
+# Ignorar variables de entorno
+**/.env
+
+# Ignorar archivos de compilación de React
+frontend/dist/
+frontend/build/
