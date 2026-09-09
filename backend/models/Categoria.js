@@ -10,8 +10,22 @@ const categoriaSchema= new mongoose.Schema(
         },
         descripcion:{
             type:String,
-            trim:true
+            trim:true // BUSCAR
         },
+        // Autoreferencia: APUNTA A OTRA CATEGORÍA
+        // Si es null -> Es Categoría Principal (Padre)
+        // Si tiene ObjectId -> Es Subcategoría (Hija)
+        padre: {
+            type: mongoose.Schema.Types.ObjectId, //BUSCAR
+            ref: 'Categoria',
+            default: null
+        },
+        camposPersonalizados: [
+            { 
+                type: String, 
+                trim: true 
+
+        }],
         estado:{
             type:Boolean,
             default:true
