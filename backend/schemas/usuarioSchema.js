@@ -11,31 +11,31 @@ const titleCase = (str) => {
     .join(" ");
 };
 
-const registroUsuarioSchema = z.object({
+const registroUsuarioPublicoSchema = z.object({
   body: z.object({
     name: z
       .string({ required_error: "El nombre es obligatorio" })
       .trim()
       .min(2, "El nombre debe tener al menos 2 caracteres")
-      .transform(titleCase), // 👈 "erick" -> "Erick"
+      .transform(titleCase), 
 
     lastname: z
       .string({ required_error: "El apellido es obligatorio" })
       .trim()
       .min(2, "El apellido debe tener al menos 2 caracteres")
-      .transform(titleCase), // 👈 "rocha" -> "Rocha"
+      .transform(titleCase), 
 
     username: z
       .string({ required_error: "El nombre de usuario es obligatorio" })
       .trim()
       .min(3, "El username debe tener al menos 3 caracteres")
-      .toLowerCase(), // 👈 Normaliza a minúsculas para evitar duplicados por Mayúsculas
+      .toLowerCase(), // cambia a minúsculas para evitar duplicados por Mayúsculas
 
     email: z
       .string({ required_error: "El correo electrónico es obligatorio" })
       .email("Debe ser un correo electrónico válido")
       .trim()
-      .toLowerCase(), // 👈 Normaliza a minúsculas ("USER@MAIL.COM" -> "user@mail.com")
+      .toLowerCase(), //cambia a minúsculas ("USER@MAIL.COM" -> "user@mail.com")
 
     password: z
       .string({ required_error: "La contraseña es obligatoria" })
@@ -46,5 +46,5 @@ const registroUsuarioSchema = z.object({
 });
 
 module.exports = {
-  registroUsuarioSchema,
+  registroUsuarioPublicoSchema,
 };

@@ -1,46 +1,70 @@
 const response = require("express");
 const Usuario= require("../models/Usuario");
 const bcrypt = require("bcryptjs");
-const {z}= require("zod");
+const {generarJWT} = require("../helpers/jwt");
+
 
 
 const crearUsuario=async (req,res=response) =>{
-    const { email, password } = req.body;
-    //validación de datos con Zod
-    /*const validation=schema.safeParse(req.body);
-    if(!validation.success){
-        return res.status(400).json({
-            ok:false,
-            msg:"Datos inválidos",
-            errors:validation.error.errors
-        });
-    }*/
+   const { name, lastname, username, email, password } = req.body;
+   
     try {
-        let usuario= await Usuario.findOne({email});
-        if(usuario){
-            return res.status(400).json({
-                ok:false,
-                msg:"El usuario ya existe"
-            });
-        }
-        
-        usuario= new Usuario(req.body);
+      let usuario = await Usuario.findOne({ email });
 
-        //Encriptar contraseña
-        const salt = bcrypt.genSaltSync();
-        usuario.password = bcrypt.hashSync(password,salt);
-
-        await usuario.save();
-        
-        res.status(201).json({
-            ok:true,
-            uid:usuario.id,
-            name:usuario.name
+      if (usuario) {
+        return res.status(400).json({
+          ok: false,
+          msg: "El correo electrónico ya está registrado.",
         });
+      }
+      usuario = await Usuario.findOne({ username });
+      if (usuario) {
+        return res.status(400).json({
+          ok: false,
+          msg: "El nombre de usuario ya está registrado, ingresa otro.",
+        });
+      }
+
+      //Encriptar contraseña
+      const salt = bcrypt.genSaltSync();
+      const passwordHash = bcrypt.hashSync(password, salt);
+   
+      
+      usuario = new Usuario({
+        name,
+        lastname,
+        username,
+        email,
+        password: passwordHash,
+        role: "client", // asignar el rol de cliente
+        status: true,
+      });
+
+      await usuario.save();
+
+      
+      //Generar JWT
+      const token = await generarJWT(usuario.id, usuario.name);
+      
+
+      res.status(201).json({
+        ok: true,
+        msg: "Usuario creado exitosamente",
+        usuario: {
+          id: usuario._id,
+          name: usuario.name,
+          lastname: usuario.lastname,
+          username: usuario.username,
+          email: usuario.email,
+          token: token,
+        },
+      });
+
     }catch (error) {
         res.status(500).json({
             ok:false,
-            msg:"Error al crear usuario"
+            msg:"Error al crear usuario ",
+            error:error.message
         });
     }
 
@@ -71,17 +95,22 @@ const loginUsuario=async (req,res=response) =>{
                 msg:"Password incorrecto"
             });
         }
+
+        //generar JWT
+        const token = await generarJWT(usuario.id, usuario.name);
+
         res.json({
           ok: true,
           uid: usuario.id,
           name: usuario.name,
+          token: token,
          
         });
 
     }catch (error) {
         res.status(500).json({
             ok:false,
-            msg:"Error al crear usuario"
+            msg:"Error al iniciar sesión"
         });
     }
     

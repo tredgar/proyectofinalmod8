@@ -97,7 +97,7 @@ app.post(`/api/${versionApi}/productos`, (request, response) => {
 });
 
 // DELETE /api/productos/:id - Eliminar un producto
-app.delete("/api/productos/:id", (request, response) => {
+app.delete(`/api/${versionApi}/productos/:id`, (request, response) => {
   const { id } = request.params;
   const index = productos.findIndex((p) => p.id === parseInt(id));
 
