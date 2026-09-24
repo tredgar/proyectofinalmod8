@@ -77,7 +77,7 @@ const loginUsuario=async (req,res=response) =>{
         if(!usuario){
             return res.status(400).json({
                 ok:false,
-                msg:"El usuario no existe con ese email"
+                msg:"Los datos son incorrectos"
             });
         }
         if(!usuario.status){
@@ -92,7 +92,7 @@ const loginUsuario=async (req,res=response) =>{
        if(!validPassword){
             return res.status(400).json({
                 ok:false,
-                msg:"Password incorrecto"
+                msg:"Los datos son incorrectos"
             });
         }
 
@@ -116,11 +116,16 @@ const loginUsuario=async (req,res=response) =>{
     
 };
 
-const revalidarToken=(req,res=response) =>{
+const revalidarToken= async (req,res=response) =>{
+
+    const {uid,name}=req;
+
+    const token = await  generarJWT(uid,name);
 
     res.json({
-        ok:true,
-        msg:'Revalidación de token funcionando correctamente'
+      ok: true,
+      msg: "Revalidación de token funcionando correctamente",
+      token
     });
 }
 
