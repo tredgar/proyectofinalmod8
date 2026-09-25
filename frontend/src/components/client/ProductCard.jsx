@@ -1,4 +1,10 @@
 function ProductCard({ producto }) {
+  // Manejo seguro por si categoria viene como objeto { id, nombre } o como string
+  const categoriaNombre =
+    typeof producto?.categoria === "object" && producto.categoria !== null
+      ? producto.categoria.nombre
+      : producto?.categoria;
+
   return (
     <div
       style={{
@@ -11,7 +17,7 @@ function ProductCard({ producto }) {
     >
       <h3 style={{ margin: "0 0 10px 0" }}>{producto.nombre}</h3>
       <p style={{ margin: "5px 0", color: "#666" }}>
-        <strong>Categoría:</strong> {producto.categoria}
+        <strong>Categoría:</strong> {categoriaNombre || "Sin categoría"}
       </p>
       <p
         style={{
@@ -34,7 +40,7 @@ function ProductCard({ producto }) {
           width: "100%",
         }}
       >
-        🛒 Agregar al Carrito
+         Agregar al Carrito
       </button>
     </div>
   );

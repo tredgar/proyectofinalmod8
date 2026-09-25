@@ -53,13 +53,16 @@ const productos = [
 ];
 
 app.use(`/api/${versionApi}/auth`, require("./routes/auth"));
+app.use(`/api/${versionApi}/productos`, require("./routes/producto"));
+app.use(`/api/${versionApi}/categorias`, require("./routes/categoria"));
 
 // Rutas (Endpoints)
 
 // 2. Ruta para obtener la lista de productos
-app.get(`/api/${versionApi}/productos`, (request, response) => {
+/*app.get(`/api/${versionApi}/productos`, (request, response) => {
   response.json(productos);
 });
+
 // GET /api/productos/2
 app.get(`/api/${versionApi}/productos/:id`, (request, response) => {
   const { id } = request.params; // Captura el ":id" de la URL
@@ -110,7 +113,7 @@ app.delete(`/api/${versionApi}/productos/:id`, (request, response) => {
   response.json({ mensaje: "Producto eliminado exitosamente" });
 });
 
-
+*/
 const inciarServer = async () => {
   // Conectar a la base de datos primero
   await dbConnection();

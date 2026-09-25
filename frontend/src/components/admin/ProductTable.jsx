@@ -1,38 +1,24 @@
+// src/components/admin/ProductTable.jsx
+
 function ProductTable({ productos, onDeleteProduct }) {
-  const handleDelete = async (id, nombre) => {
-    // Confirmación rápida antes de borrar
-    const confirmar = window.confirm(
-      `¿Estás seguro de que deseas eliminar "${nombre}"?`,
-    );
-
-    if (confirmar) {
-      try {
-        const respuesta = await fetch(
-          `http://localhost:4000/api/productos/${id}`,
-          {
-            method: "DELETE",
-          },
-        );
-
-        if (respuesta.ok) {
-          // Notificar al padre (DashboardPage) para refrescar la lista
+  const handleDelete = (id) => {
+    if (window.confirm("¿Estás seguro de eliminar este producto?")) {
+      fetch(`http://localhost:4000/api/v1/productos/${id}`, {
+        method: "DELETE",
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Error al eliminar");
+          return res.json();
+        })
+        .then(() => {
           onDeleteProduct(id);
-        } else {
-          alert("Error al intentar eliminar el producto.");
-        }
-      } catch (error) {
-        console.error("Error al conectar con el backend:", error);
-        alert("No se pudo conectar con el servidor.");
-      }
+        })
+        .catch((err) => console.error("Error al borrar:", err));
     }
   };
 
   if (!productos || productos.length === 0) {
-    return (
-      <p style={{ marginTop: "20px", color: "#666" }}>
-        No hay productos registrados en el catálogo.
-      </p>
-    );
+    return <p style={{ marginTop: "20px" }}>No hay productos registrados.</p>;
   }
 
   return (
@@ -41,10 +27,7 @@ function ProductTable({ productos, onDeleteProduct }) {
         style={{
           width: "100%",
           borderCollapse: "collapse",
-          backgroundColor: "#fff",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-          borderRadius: "8px",
-          overflow: "hidden",
+          textAlign: "left",
         }}
       >
         <thead>
@@ -52,63 +35,61 @@ function ProductTable({ productos, onDeleteProduct }) {
             style={{
               backgroundColor: "#f8f9fa",
               borderBottom: "2px solid #dee2e6",
-              textAlign: "left",
             }}
           >
-            <th style={{ padding: "12px" }}>ID</th>
             <th style={{ padding: "12px" }}>Nombre</th>
-            <th style={{ padding: "12px" }}>Precio</th>
             <th style={{ padding: "12px" }}>Categoría</th>
-            <th style={{ padding: "12px", textAlign: "center" }}>Acciones</th>
+            <th style={{ padding: "12px" }}>Precio</th>
+            <th style={{ padding: "12px" }}>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {productos.map((prod) => (
-            <tr key={prod.id} style={{ borderBottom: "1px solid #e9ecef" }}>
-              <td style={{ padding: "12px", fontWeight: "bold" }}>
-                #{prod.id}
-              </td>
-              <td style={{ padding: "12px" }}>{prod.nombre}</td>
-              <td
-                style={{
-                  padding: "12px",
-                  color: "#2b8a3e",
-                  fontWeight: "bold",
-                }}
+          {productos.map((prod) => {
+            const idProducto = prod.id || prod._id;
+
+            // 🛡️ Extraer de forma segura el texto de la categoría
+            const categoriaNombre =
+              typeof prod.categoria === "object" && prod.categoria !== null
+                ? prod.categoria.nombre || prod.categoria.id
+                : prod.categoria;
+
+            return (
+              <tr
+                key={idProducto}
+                style={{ borderBottom: "1px solid #dee2e6" }}
               >
-                ${prod.precio?.toLocaleString()} MXN
-              </td>
-              <td style={{ padding: "12px" }}>
-                <span
-                  style={{
-                    backgroundColor: "#e7f5ff",
-                    color: "#1971c2",
-                    padding: "4px 8px",
-                    borderRadius: "4px",
-                    fontSize: "0.85em",
-                  }}
-                >
-                  {prod.categoria}
-                </span>
-              </td>
-              <td style={{ padding: "12px", textAlign: "center" }}>
-                <button
-                  onClick={() => handleDelete(prod.id, prod.nombre)}
-                  style={{
-                    backgroundColor: "#fa5252",
-                    color: "#fff",
-                    border: "none",
-                    padding: "6px 12px",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    fontSize: "0.9em",
-                  }}
-                >
-                  🗑️ Eliminar
-                </button>
-              </td>
-            </tr>
-          ))}
+                <td style={{ padding: "12px" }}>{prod.nombre}</td>
+
+                {/* ⚠️ LÍNEA 82: Aquí se usa 'categoriaNombre' en lugar de 'prod.categoria' directo */}
+                <td style={{ padding: "12px" }}>
+                  <span>{categoriaNombre || "Sin categoría"}</span>
+                </td>
+
+                <td style={{ padding: "12px" }}>
+                  $
+                  {Number(prod.precio || 0).toLocaleString("es-MX", {
+                    minimumFractionDigits: 2,
+                  })}
+                </td>
+
+                <td style={{ padding: "12px" }}>
+                  <button
+                    onClick={() => handleDelete(idProducto)}
+                    style={{
+                      backgroundColor: "#dc3545",
+                      color: "#fff",
+                      border: "none",
+                      padding: "6px 12px",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

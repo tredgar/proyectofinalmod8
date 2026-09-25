@@ -7,14 +7,23 @@ function DashboardPage() {
   const [cargando, setCargando] = useState(true);
 
   const cargarProductos = () => {
-    fetch("http://localhost:4000/api/productos")
+    setCargando(true);
+    fetch("http://localhost:4000/api/v1/productos")
       .then((res) => res.json())
       .then((data) => {
-        setProductos(data);
+        // 🛡️ Extracción segura respetando la respuesta { exito: true, productos: [...] }
+        if (data.exito && Array.isArray(data.productos)) {
+          setProductos(data.productos);
+        } else if (Array.isArray(data)) {
+          setProductos(data);
+        } else {
+          setProductos([]);
+        }
         setCargando(false);
       })
       .catch((err) => {
         console.error("Error al cargar productos:", err);
+        setProductos([]);
         setCargando(false);
       });
   };
@@ -23,21 +32,25 @@ function DashboardPage() {
     cargarProductos();
   }, []);
 
-  // Función para remover localmente un producto eliminado de la lista
-  const handleProductDeleted = (id) => {
-    setProductos(productos.filter((prod) => prod.id !== id));
+  // Función para remover localmente un producto eliminado (Soporta id y _id)
+  const handleProductDeleted = (idEliminado) => {
+    setProductos((prevProductos) =>
+      prevProductos.filter(
+        (prod) => prod.id !== idEliminado && prod._id !== idEliminado,
+      ),
+    );
   };
 
   return (
-    <div>
-      <h2>⚙️ Panel de Administración</h2>
+    <div style={{ padding: "20px" }}>
+      <h2>Panel de Administración</h2>
 
       {/* Formulario para agregar productos */}
       <AdminForm onProductCreated={cargarProductos} />
 
       {/* Tabla de productos registrados */}
       {cargando ? (
-        <p>Cargando lista de productos...</p>
+        <p style={{ marginTop: "20px" }}>Cargando lista de productos...</p>
       ) : (
         <ProductTable
           productos={productos}
